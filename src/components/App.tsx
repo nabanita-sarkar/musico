@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  ChevronLeft,
-  ChevronRight,
   Pause,
-  Play,
   Repeat,
   Repeat1,
   Shuffle,
@@ -11,6 +8,7 @@ import {
   SkipForward,
 } from "lucide-react";
 import Slider from "./Slider";
+import Play from "./Play";
 
 const formatTime = (time: number) => {
   const min = Math.floor(time / 60).toFixed(0);
@@ -41,66 +39,89 @@ const tracks = [
   },
 ];
 
+const idGen = (array: typeof tracks) => {
+  return array.map((item, id) => ({ ...item, id }));
+};
+
+type T_TrackList = ReturnType<typeof idGen>;
+type T_Track = T_TrackList[number];
+type T_ChangeType = "next" | "prev";
+
+const shuffle = (array: T_TrackList) => {
+  const newArray = array.slice();
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+};
+
+const songPicker = (
+  prev: T_Track,
+  type: T_ChangeType,
+  trackList: T_TrackList
+) => {
+  const id = trackList.findIndex((item) => item.id === prev.id);
+  if (type === "next" && id === trackList.length - 1) return trackList[0];
+  if (type === "prev" && id === 0) return trackList[trackList.length - 1];
+  return trackList.find((_, i) => i === (type === "next" ? id + 1 : id - 1))!;
+};
+
 function App() {
-  const [trackList, setTrackList] = useState(
-    tracks.map((item, id) => ({ ...item, id }))
-  );
+  const [trackList, setTrackList] = useState(idGen(tracks));
   const [track, setTrack] = useState(trackList[0]);
   const [trackTime, setTrackTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [loop, setLoop] = useState<"default" | "loop" | "single">("default");
+  const [isShuffleOn, setIsShuffleOn] = useState(false);
 
-  const changeSong = (type: "next" | "prev") => {
-    setTrack((prev) => {
-      const id = trackList.findIndex((item) => item.id === prev.id);
-      if (type === "next" && id === trackList.length - 1) return trackList[0];
-      if (type === "prev" && id === 0) return trackList[trackList.length - 1];
-      return trackList.find(
-        (_, i) => i === (type === "next" ? id + 1 : id - 1)
-      )!;
-    });
+  const changeSong = (type: T_ChangeType) => {
+    setTrack((prev) => songPicker(prev, type, trackList));
     setTrackTime(0);
   };
 
   useEffect(() => {
     let intervalId: any;
     intervalId = setInterval(() => setTrackTime(trackTime + 1), 1000);
-    if (!isPlaying) {
-      clearInterval(intervalId);
-    }
-    // if (trackTime === track.time) {
-    //   clearInterval(intervalId);
+    if (!isPlaying) clearInterval(intervalId);
 
-    //   // setIsPlaying(false);
-    // }
-    return () => {
-      clearInterval(intervalId);
-    };
+    return () => clearInterval(intervalId);
   });
 
   useEffect(() => {
     if (track.time === trackTime) {
-      setTrackTime(0);
       if (loop === "loop") {
-        if (!isMouseDown) {
-          console.log(isMouseDown);
-
+        if (!isMouseDown && isPlaying) {
           changeSong("next");
+          setTrackTime(0);
         }
       } else if (loop === "default") {
-        if (!isMouseDown) {
+        if (!isMouseDown && isPlaying) {
           changeSong("next");
+          setTrackTime(0);
         }
         if (track.id === trackList.length - 1) setIsPlaying(false);
       }
     }
-  }, [loop, trackTime, isMouseDown]);
+  }, [loop, trackTime, isMouseDown, isPlaying]);
 
   return (
-    <div className="w-full h-screen flex items-center justify-center bg-slate-50">
-      <div className="absolute top-0">
-        <picture>
+    <div
+      className="w-full h-screen flex items-center justify-center bg-slate-50"
+      style={{
+        fontFamily: "Poppins",
+        backgroundImage: `radial-gradient(at 40% 20%, hsla(28,100%,74%,1) 0px, transparent 50%),
+                          radial-gradient(at 80% 0%, hsla(189,100%,56%,1) 0px, transparent 50%),
+                          radial-gradient(at 0% 50%, hsla(355,100%,93%,1) 0px, transparent 50%),
+                          radial-gradient(at 80% 50%, hsla(340,100%,76%,1) 0px, transparent 50%),
+                          radial-gradient(at 0% 100%, hsla(22,100%,77%,1) 0px, transparent 50%),
+                          radial-gradient(at 80% 100%, hsla(242,100%,70%,1) 0px, transparent 50%),
+                          radial-gradient(at 0% 0%, hsla(343,100%,76%,1) 0px, transparent 50%)`,
+      }}
+    >
+      <div className="absolute top- overflow-clip">
+        {/* <picture>
           <img
             src="https://tailwindcss.com/_next/static/media/docs@tinypng.61f4d3334a6d245fc2297517c87ae044.png"
             alt="gradient"
@@ -110,9 +131,9 @@ function App() {
             src="https://tailwindcss.com/_next/static/media/docs@tinypng.61f4d3334a6d245fc2297517c87ae044.png"
             alt="gradient"
           />
-        </picture>
+        </picture> */}
       </div>
-      <div className="flex flex-col gap-4 border border-slate-200 rounded-xl p-6 bg-white/70 w-96 drop-shadow-2xl backdrop-blur-md">
+      <div className="flex flex-col gap-4 border border-slate-200 rounded-xl p-6 bg-white/90 w-96 drop-shadow-2xl backdrop-blur-md">
         <div className="flex gap-4">
           <img
             src={track.album_art}
@@ -120,10 +141,13 @@ function App() {
             className="rounded-lg w-20 h-20"
           />
           <div>
-            <h3 title="Track" className="text-slate-900 text-xl font-bold">
+            <h3
+              title="Track"
+              className="text-slate-900 text-2xl leading-6 font-bold"
+            >
               {track.song}
             </h3>
-            <p title="Artist" className="text-slate-500 text-sm font-semibold">
+            <p title="Artist" className="text-slate-500">
               {track.artist}
             </p>
           </div>
@@ -179,28 +203,7 @@ function App() {
               {isPlaying ? (
                 <Pause className="fill-slate-400 text-slate-400" />
               ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="40"
-                  height="40"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    className="fill-slate-200 text-slate-200"
-                  ></circle>
-                  <polygon
-                    points="10 8 16 12 10 16 10 8"
-                    className="fill-slate-400 text-slate-400"
-                  ></polygon>
-                </svg>
+                <Play />
               )}
             </button>
             <button
@@ -210,8 +213,18 @@ function App() {
               <SkipForward className="text-slate-400 fill-slate-400" />
             </button>
           </div>
-          <button title="Shuffle" onClick={() => changeSong("prev")}>
-            <Shuffle className="text-slate-400" />
+          <button
+            title="Shuffle"
+            onClick={() => {
+              const newShuffle = !isShuffleOn;
+              setIsShuffleOn(newShuffle);
+              if (newShuffle) setTrackList((prev) => shuffle(prev));
+              else setTrackList(idGen(tracks));
+            }}
+          >
+            <Shuffle
+              className={isShuffleOn ? "text-slate-800" : "text-slate-400"}
+            />
           </button>
         </div>
       </div>
