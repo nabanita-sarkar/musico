@@ -9,62 +9,15 @@ import {
 } from "lucide-react";
 import Slider from "./Slider";
 import Play from "./Play";
+import { tracks } from "../utils/constants";
+import { idGen, shuffle, songPicker } from "../utils/functions";
+import { T_ChangeType } from "../utils/types";
+import Queue from "./Queue";
 
 const formatTime = (time: number) => {
   const min = Math.floor(time / 60).toFixed(0);
   const sec = (time % 60).toFixed(0);
   return `${min}:${sec.length === 1 ? `0${sec}` : sec}`;
-};
-
-const tracks = [
-  {
-    song: "Dancing on the moon",
-    artist: "Unknown Brain",
-    time: 221,
-    album_art:
-      "https://linkstorage.linkfire.com/medialinks/images/58c79a18-d5ea-4515-8d93-1abc6395dbe1/artwork-440x440.jpg",
-  },
-  {
-    song: "Blackhole",
-    artist: "Ava King",
-    time: 200,
-    album_art:
-      "https://i1.sndcdn.com/artworks-ejQtUPXG7aDyLW6w-Vm3zSA-t500x500.jpg",
-  },
-  {
-    song: "Phenomenon",
-    artist: "Dax & VinDon",
-    time: 207,
-    album_art: "https://i.ytimg.com/vi/VpxZBD4iQY4/maxresdefault.jpg",
-  },
-];
-
-const idGen = (array: typeof tracks) => {
-  return array.map((item, id) => ({ ...item, id }));
-};
-
-type T_TrackList = ReturnType<typeof idGen>;
-type T_Track = T_TrackList[number];
-type T_ChangeType = "next" | "prev";
-
-const shuffle = (array: T_TrackList) => {
-  const newArray = array.slice();
-  for (let i = newArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-  }
-  return newArray;
-};
-
-const songPicker = (
-  prev: T_Track,
-  type: T_ChangeType,
-  trackList: T_TrackList
-) => {
-  const id = trackList.findIndex((item) => item.id === prev.id);
-  if (type === "next" && id === trackList.length - 1) return trackList[0];
-  if (type === "prev" && id === 0) return trackList[trackList.length - 1];
-  return trackList.find((_, i) => i === (type === "next" ? id + 1 : id - 1))!;
 };
 
 function App() {
