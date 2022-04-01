@@ -13,9 +13,10 @@ import Slider from "./Slider";
 import Play from "./Play";
 import { tracks } from "../utils/constants";
 import { idGen, shuffle, songPicker } from "../utils/functions";
-import { T_ChangeType } from "../utils/types";
+import { T_ChangeType, T_LoopType } from "../utils/types";
 import Queue from "./Queue";
 import { AnimatePresence } from "framer-motion";
+import LoopButton from "./LoopButton";
 
 const formatTime = (time: number) => {
   const min = Math.floor(time / 60).toFixed(0);
@@ -29,13 +30,20 @@ function App() {
   const [trackTime, setTrackTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMouseDown, setIsMouseDown] = useState(false);
-  const [loop, setLoop] = useState<"default" | "loop" | "single">("default");
+  const [loop, setLoop] = useState<T_LoopType>("default");
   const [isShuffleOn, setIsShuffleOn] = useState(false);
   const [isQueueOpen, setIsQueueOpen] = useState(false);
 
   const changeSong = (type: T_ChangeType) => {
     setTrack((prev) => songPicker(prev, type, trackList));
     setTrackTime(0);
+  };
+
+  const shuffleSongs = () => {
+    const newShuffle = !isShuffleOn;
+    setIsShuffleOn(newShuffle);
+    if (newShuffle) setTrackList((prev) => shuffle(prev));
+    else setTrackList(idGen(tracks));
   };
 
   useEffect(() => {
@@ -132,23 +140,7 @@ function App() {
           </span>
         </div>
         <div className="flex items-center justify-between gap-4">
-          <button
-            title={loop}
-            onClick={() => {
-              if (loop === "default") setLoop("loop");
-              if (loop === "loop") setLoop("single");
-              if (loop === "single") setLoop("default");
-            }}
-            className={`p-2 ${
-              loop === "loop" ? "text-slate-800" : "text-slate-400"
-            }`}
-          >
-            {loop === "single" ? (
-              <Repeat1 className="text-slate-800" />
-            ) : (
-              <Repeat />
-            )}
-          </button>
+          <LoopButton loop={loop} setLoop={setLoop} />
           <div className="flex gap-4">
             <button
               className="bg-slate-200 rounded-full p-2"
@@ -158,10 +150,7 @@ function App() {
             </button>
             <button
               className="text-2xl w-10 flex justify-center items-center rounded-full bg-slate-200"
-              onClick={() => {
-                setIsPlaying(!isPlaying);
-                clearInterval();
-              }}
+              onClick={() => setIsPlaying(!isPlaying)}
             >
               {isPlaying ? (
                 <Pause className="fill-slate-400 text-slate-400" />
@@ -176,15 +165,7 @@ function App() {
               <SkipForward className="text-slate-400 fill-slate-400" />
             </button>
           </div>
-          <button
-            title="Shuffle"
-            onClick={() => {
-              const newShuffle = !isShuffleOn;
-              setIsShuffleOn(newShuffle);
-              if (newShuffle) setTrackList((prev) => shuffle(prev));
-              else setTrackList(idGen(tracks));
-            }}
-          >
+          <button title="Shuffle" onClick={shuffleSongs}>
             <Shuffle
               className={isShuffleOn ? "text-slate-800" : "text-slate-400"}
             />

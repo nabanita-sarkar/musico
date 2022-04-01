@@ -1,4 +1,4 @@
-import { Reorder, useDragControls } from "framer-motion";
+import { Reorder, useDragControls, motion } from "framer-motion";
 import React from "react";
 import { T_TrackList } from "../utils/types";
 import QueueItem from "./QueueItem";
@@ -21,10 +21,7 @@ export default function Queue({
   const modalDrag = useDragControls();
 
   return (
-    <Reorder.Group
-      axis="y"
-      values={trackList}
-      onReorder={setTrackList}
+    <motion.div
       dragListener={false}
       drag="y"
       dragConstraints={{ bottom: 24, top: 24 }}
@@ -37,7 +34,7 @@ export default function Queue({
       initial="initial"
       animate="animate"
       exit="exit"
-      className="bg-white/80 rounded-t-lg shadow-2xl px-6 pb-12 flex flex-col gap-2 absolute bottom-0"
+      className="bg-white/80 rounded-t-lg shadow-2xl px-6 pb-12  absolute bottom-0"
     >
       <div className="flex justify-center pb-4">
         <button
@@ -47,9 +44,16 @@ export default function Queue({
           <div className="h-1 w-8 bg-slate-300 rounded-full" />
         </button>
       </div>
-      {trackList.map((item) => (
-        <QueueItem item={item} key={item.id} />
-      ))}
-    </Reorder.Group>
+      <Reorder.Group
+        axis="y"
+        values={trackList}
+        onReorder={setTrackList}
+        className="flex flex-col gap-2 overflow-clip"
+      >
+        {trackList.map((item) => (
+          <QueueItem item={item} key={item.id} />
+        ))}
+      </Reorder.Group>
+    </motion.div>
   );
 }
