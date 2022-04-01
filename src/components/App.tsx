@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import {
+  Heart,
+  List,
   Pause,
   Repeat,
   Repeat1,
@@ -13,6 +15,7 @@ import { tracks } from "../utils/constants";
 import { idGen, shuffle, songPicker } from "../utils/functions";
 import { T_ChangeType } from "../utils/types";
 import Queue from "./Queue";
+import { AnimatePresence } from "framer-motion";
 
 const formatTime = (time: number) => {
   const min = Math.floor(time / 60).toFixed(0);
@@ -28,6 +31,7 @@ function App() {
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [loop, setLoop] = useState<"default" | "loop" | "single">("default");
   const [isShuffleOn, setIsShuffleOn] = useState(false);
+  const [isQueueOpen, setIsQueueOpen] = useState(false);
 
   const changeSong = (type: T_ChangeType) => {
     setTrack((prev) => songPicker(prev, type, trackList));
@@ -73,7 +77,7 @@ function App() {
                           radial-gradient(at 0% 0%, hsla(343,100%,76%,1) 0px, transparent 50%)`,
       }}
     >
-      <div className="absolute top- overflow-clip">
+      <div className="absolute overflow-clip">
         {/* <picture>
           <img
             src="https://tailwindcss.com/_next/static/media/docs@tinypng.61f4d3334a6d245fc2297517c87ae044.png"
@@ -87,7 +91,7 @@ function App() {
         </picture> */}
       </div>
       <div className="flex flex-col gap-4 border border-slate-200 rounded-xl p-6 bg-white/90 w-96 drop-shadow-2xl backdrop-blur-md">
-        <div className="flex gap-4">
+        <div className="flex items-start gap-4">
           <img
             src={track.album_art}
             alt="Album Art"
@@ -103,7 +107,13 @@ function App() {
             <p title="Artist" className="text-slate-500">
               {track.artist}
             </p>
+            <button>
+              <Heart className="text-slate-400" />
+            </button>
           </div>
+          <button onClick={() => setIsQueueOpen(!isQueueOpen)}>
+            <List className="text-slate-400" />
+          </button>
         </div>
         <div className="flex gap-2">
           <span title="Track Time" className="text-sm text-slate-500 w-7">
@@ -181,6 +191,15 @@ function App() {
           </button>
         </div>
       </div>
+      <AnimatePresence>
+        {isQueueOpen && (
+          <Queue
+            trackList={trackList}
+            setTrackList={setTrackList}
+            setIsQueueOpen={setIsQueueOpen}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
