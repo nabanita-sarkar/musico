@@ -17,6 +17,8 @@ import { T_ChangeType, T_LoopType } from "../utils/types";
 import Queue from "./Queue";
 import { AnimatePresence } from "framer-motion";
 import LoopButton from "./LoopButton";
+import SongDetails from "./SongDetails";
+import PlayButton from "./PlayButton";
 
 const formatTime = (time: number) => {
   const min = Math.floor(time / 60).toFixed(0);
@@ -85,45 +87,16 @@ function App() {
                           radial-gradient(at 0% 0%, hsla(343,100%,76%,1) 0px, transparent 50%)`,
       }}
     >
-      <div className="absolute overflow-clip">
-        {/* <picture>
-          <img
-            src="https://tailwindcss.com/_next/static/media/docs@tinypng.61f4d3334a6d245fc2297517c87ae044.png"
-            alt="gradient"
-            className="-scale-y-100 scale-x-100"
-          />
-          <img
-            src="https://tailwindcss.com/_next/static/media/docs@tinypng.61f4d3334a6d245fc2297517c87ae044.png"
-            alt="gradient"
-          />
-        </picture> */}
-      </div>
       <div className="flex flex-col gap-4 border border-slate-200 rounded-xl p-6 bg-white/90 w-96 drop-shadow-2xl backdrop-blur-md">
-        <div className="flex items-start gap-4">
-          <img
-            src={track.album_art}
-            alt="Album Art"
-            className="rounded-lg w-20 h-20"
-          />
-          <div>
-            <h3
-              title="Track"
-              className="text-slate-900 text-2xl leading-6 font-bold"
-            >
-              {track.song}
-            </h3>
-            <p title="Artist" className="text-slate-500">
-              {track.artist}
-            </p>
-            <button>
-              <Heart className="text-slate-400" />
-            </button>
-          </div>
-          <button onClick={() => setIsQueueOpen(!isQueueOpen)}>
-            <List className="text-slate-400" />
-          </button>
-        </div>
-        <div className="flex gap-2">
+        <SongDetails
+          track={track}
+          isQueueOpen={isQueueOpen}
+          setIsQueueOpen={setIsQueueOpen}
+        />
+        <div
+          className="grid gap-2"
+          style={{ gridTemplateColumns: "28px auto 28px" }}
+        >
           <span title="Track Time" className="text-sm text-slate-500 w-7">
             {formatTime(trackTime)}
           </span>
@@ -148,16 +121,7 @@ function App() {
             >
               <SkipBack className="text-slate-400 fill-slate-400" />
             </button>
-            <button
-              className="text-2xl w-10 flex justify-center items-center rounded-full bg-slate-200"
-              onClick={() => setIsPlaying(!isPlaying)}
-            >
-              {isPlaying ? (
-                <Pause className="fill-slate-400 text-slate-400" />
-              ) : (
-                <Play />
-              )}
-            </button>
+            <PlayButton isPlaying={isPlaying} setIsPlaying={setIsPlaying} />
             <button
               className="bg-slate-200 rounded-full p-2"
               onClick={() => changeSong("next")}

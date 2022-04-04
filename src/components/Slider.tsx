@@ -22,8 +22,7 @@ export default function Slider({
         max={max}
         value={[value]}
         onValueChange={([val]) => onChange(val)}
-        className="relative flex items-center h-5"
-        style={{ width: 264 }}
+        className="relative flex items-center h-5 w-full"
       >
         <RadixSlider.Track className="relative bg-slate-200 w-full flex-grow-1 rounded-md h-1">
           <RadixSlider.Range className="absolute bg-slate-400 rounded-md h-full" />
