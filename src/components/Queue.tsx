@@ -34,7 +34,7 @@ export default function Queue({
       initial="initial"
       animate="animate"
       exit="exit"
-      className="bg-white/80 rounded-t-lg shadow-2xl px-6 pb-12  absolute bottom-0"
+      className="bg-white/80 rounded-t-lg shadow-2xl px-6 pb-12 fixed bottom-0"
     >
       <div className="flex justify-center pb-4">
         <button

@@ -1,4 +1,4 @@
-import { Reorder, useDragControls } from "framer-motion";
+import { Reorder, useDragControls, motion } from "framer-motion";
 import { Equal } from "lucide-react";
 import React from "react";
 import { T_Track } from "../utils/types";
@@ -20,10 +20,7 @@ export default function QueueItem({ item }: { item: T_Track }) {
       </div>
       <button
         className="cursor:pointer text-slate-400"
-        onPointerDown={(e) => {
-          e.stopPropagation();
-          itemDrag.start(e);
-        }}
+        onPointerDown={(e) => itemDrag.start(e)}
       >
         <Equal />
       </button>

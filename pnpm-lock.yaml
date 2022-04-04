@@ -6,7 +6,7 @@ specifiers:
   '@types/react-dom': ^17.0.10
   '@vitejs/plugin-react': ^1.0.7
   autoprefixer: ^10.0.2
-  framer-motion: ^6.2.8
+  framer-motion: 5.0.0
   lucide-react: ^0.17.15
   postcss: ^8.1.0
   prop-types: ^15.7.2
@@ -18,7 +18,7 @@ specifiers:
 
 dependencies:
   '@radix-ui/react-slider': 0.1.4_react@17.0.2
-  framer-motion: 6.2.8_react-dom@17.0.2+react@17.0.2
+  framer-motion: 5.0.0_react-dom@17.0.2+react@17.0.2
   lucide-react: 0.17.15_prop-types@15.8.1+react@17.0.2
   react: 17.0.2
   react-dom: 17.0.2_react@17.0.2
@@ -1022,15 +1022,15 @@ packages:
     resolution: {integrity: sha512-MhLuK+2gUcnZe8ZHlaaINnQLl0xRIGRfcGk2yl8xoQAfHrSsL3rYu6FCmBdkdbhc9EPlwyGHewaRsvwRMJtAlA==}
     dev: true
 
-  /framer-motion/6.2.8_react-dom@17.0.2+react@17.0.2:
-    resolution: {integrity: sha512-4PtBWFJ6NqR350zYVt9AsFDtISTqsdqna79FvSYPfYDXuuqFmiKtZdkTnYPslnsOMedTW0pEvaQ7eqjD+sA+HA==}
+  /framer-motion/5.0.0_react-dom@17.0.2+react@17.0.2:
+    resolution: {integrity: sha512-5X2ng9Cil9srkS9+ynxYmQf02yDnEUueGiGq20+sRdh7OiwLb7QWnw4Jysj/MiL3VYSMtGLd+zKFlH/HQB285A==}
     peerDependencies:
-      react: '>=16.8 || ^17.0.0 || ^18.0.0'
-      react-dom: '>=16.8 || ^17.0.0 || ^18.0.0'
+      react: '>=16.8 || ^17.0.0'
+      react-dom: '>=16.8 || ^17.0.0'
     dependencies:
       framesync: 6.0.1
       hey-listen: 1.0.8
-      popmotion: 11.0.3
+      popmotion: 10.0.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       style-value-types: 5.0.0
@@ -1273,8 +1273,8 @@ packages:
     engines: {node: '>=8.6'}
     dev: true
 
-  /popmotion/11.0.3:
-    resolution: {integrity: sha512-Y55FLdj3UxkR7Vl3s7Qr4e9m0onSnP8W7d/xQLsoJM40vs6UKHFdygs6SWryasTZYqugMjm3BepCF4CWXDiHgA==}
+  /popmotion/10.0.2:
+    resolution: {integrity: sha512-8vgx02LL7Odk/kwSGigAnlPRLJK+Dfked571ZAHGzkxPNWThkU5mQX0xPmibIMAULZehWBV7hGN7LSCpaV3cfw==}
     dependencies:
       framesync: 6.0.1
       hey-listen: 1.0.8
