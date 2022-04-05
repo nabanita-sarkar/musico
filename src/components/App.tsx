@@ -13,7 +13,7 @@ import Slider from "./Slider";
 import Play from "./Play";
 import { tracks } from "../utils/constants";
 import { idGen, shuffle, songPicker } from "../utils/functions";
-import { T_ChangeType, T_LoopType } from "../utils/types";
+import { T_ChangeType, T_LoopType, T_Track } from "../utils/types";
 import Queue from "./Queue";
 import { AnimatePresence } from "framer-motion";
 import LoopButton from "./LoopButton";
@@ -67,8 +67,16 @@ function App() {
         if (!isMouseDown && isPlaying) {
           changeSong("next");
           setTrackTime(0);
+          // setIsPlaying(true);
         }
-        if (track.id === trackList.length - 1) setIsPlaying(false);
+        if (isPlaying && trackList.indexOf(track) === trackList.length - 1) {
+          setIsPlaying(false);
+        }
+      } else if (loop === "single") {
+        if (!isMouseDown && isPlaying) {
+          setTrackTime(0);
+          // setIsPlaying(false);
+        }
       }
     }
   }, [loop, trackTime, isMouseDown, isPlaying]);
@@ -121,7 +129,14 @@ function App() {
             >
               <SkipBack className="text-slate-400 fill-slate-400" />
             </button>
-            <PlayButton isPlaying={isPlaying} setIsPlaying={setIsPlaying} />
+            <PlayButton
+              isPlaying={isPlaying}
+              onClick={() => {
+                if (loop === "single" && track.time === trackTime)
+                  setTrackTime(0);
+                setIsPlaying(!isPlaying);
+              }}
+            />
             <button
               className="bg-slate-200 rounded-full p-2"
               onClick={() => changeSong("next")}

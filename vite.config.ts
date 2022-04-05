@@ -7,4 +7,13 @@ export default defineConfig({
   define: {
     "process.env": {},
   },
+  // server: {
+  //   origin: "http://localhost:3000",
+  //   // host: "117.241.237.162",
+  //   host: true,
+  //   fs: {
+  //     strict: true,
+  //   },
+  //   open: true,
+  // },
 });

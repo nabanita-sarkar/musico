@@ -29,7 +29,7 @@ export default function Queue({
       dragControls={modalDrag}
       variants={variants}
       onDragEnd={(e, info) => {
-        if (info.offset.y > 200) setIsQueueOpen(false);
+        if (info.offset.y > 100) setIsQueueOpen(false);
       }}
       initial="initial"
       animate="animate"
