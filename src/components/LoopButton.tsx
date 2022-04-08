@@ -11,6 +11,7 @@ export default function LoopButton({
 }) {
   return (
     <button
+      type="button"
       title={loop}
       onClick={() => {
         if (loop === "default") setLoop("loop");

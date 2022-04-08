@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 export const tracks = [
   {
     song: "Dancing on the moon",
@@ -10,8 +11,7 @@ export const tracks = [
     song: "Blackhole",
     artist: "Ava King",
     time: 200,
-    album_art:
-      "https://i1.sndcdn.com/artworks-ejQtUPXG7aDyLW6w-Vm3zSA-t500x500.jpg",
+    album_art: "https://i1.sndcdn.com/artworks-ejQtUPXG7aDyLW6w-Vm3zSA-t500x500.jpg",
   },
   {
     song: "Phenomenon",

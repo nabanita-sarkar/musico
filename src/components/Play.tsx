@@ -16,11 +16,11 @@ export default function Play() {
         cy="12"
         r="10"
         className="fill-slate-200 text-slate-200"
-      ></circle>
+      />
       <polygon
         points="10 8 16 12 10 16 10 8"
         className="fill-slate-400 text-slate-400"
-      ></polygon>
+      />
     </svg>
   );
 }

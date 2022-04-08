@@ -38,18 +38,14 @@ export default function Queue({
     >
       <div className="flex justify-center pb-4">
         <button
+          type="button"
           className="p-2 hover:cursor-grab focus:cursor-grabbing"
           onPointerDown={(e) => modalDrag.start(e)}
         >
           <div className="h-1 w-8 bg-slate-300 rounded-full" />
         </button>
       </div>
-      <Reorder.Group
-        axis="y"
-        values={trackList}
-        onReorder={setTrackList}
-        className="flex flex-col gap-2 overflow-clip"
-      >
+      <Reorder.Group axis="y" values={trackList} onReorder={setTrackList} className="flex flex-col gap-2 overflow-clip">
         {trackList.map((item) => (
           <QueueItem item={item} key={item.id} />
         ))}

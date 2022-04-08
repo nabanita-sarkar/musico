@@ -12,16 +12,9 @@ export default function SongDetails({
 }) {
   return (
     <div className="flex items-start gap-4">
-      <img
-        src={track.album_art}
-        alt="Album Art"
-        className="rounded-lg w-20 h-20"
-      />
+      <img src={track.album_art} alt="Album Art" className="rounded-lg w-20 h-20" />
       <div>
-        <h3
-          title="Track"
-          className="text-slate-900 text-2xl leading-6 font-bold"
-        >
+        <h3 title="Track" className="text-slate-900 text-2xl leading-6 font-bold">
           {track.song}
         </h3>
         <p title="Artist" className="text-slate-500">
@@ -29,10 +22,10 @@ export default function SongDetails({
         </p>
       </div>
       <div className="flex flex-col gap-2 ml-auto">
-        <button>
+        <button type="button">
           <Heart className="text-slate-400" />
         </button>
-        <button onClick={() => setIsQueueOpen(!isQueueOpen)}>
+        <button type="button" onClick={() => setIsQueueOpen(!isQueueOpen)}>
           <List className="text-slate-400" />
         </button>
       </div>

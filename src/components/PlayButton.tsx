@@ -1,7 +1,6 @@
 import { Pause } from "lucide-react";
 import { motion } from "framer-motion";
 import Play from "./Play";
-import { T_LoopType } from "../utils/types";
 
 export default function PlayButton({
   isPlaying,
