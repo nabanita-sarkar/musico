@@ -3,6 +3,9 @@ import { motion } from "framer-motion";
 import Play from "./Play";
 
 export default function PlayButton({
+  /**
+   *  Check if the track is playing currently or not
+   * */
   isPlaying,
   onClick,
 }: {
@@ -16,11 +19,7 @@ export default function PlayButton({
       className="text-2xl w-10 flex justify-center items-center rounded-full bg-slate-200"
       onClick={() => onClick()}
     >
-      {isPlaying ? (
-        <Pause className="fill-slate-400 text-slate-400" />
-      ) : (
-        <Play />
-      )}
+      {isPlaying ? <Pause className="fill-slate-400 text-slate-400" /> : <Play />}
     </motion.button>
   );
 }

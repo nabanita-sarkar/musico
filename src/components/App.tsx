@@ -1,6 +1,6 @@
 import { AnimatePresence } from "framer-motion";
 import { Shuffle, SkipBack, SkipForward } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { tracks } from "../utils/constants";
 import { idGen, shuffle, songPicker } from "../utils/functions";
@@ -27,6 +27,7 @@ function App() {
   const [loop, setLoop] = useState<T_LoopType>("default");
   const [isShuffleOn, setIsShuffleOn] = useState(false);
   const [isQueueOpen, setIsQueueOpen] = useState(false);
+  const audio = useRef<HTMLAudioElement>(null);
 
   const changeSong = (type: T_ChangeType) => {
     setTrack((prev) => songPicker(prev, type, trackList));
@@ -39,6 +40,10 @@ function App() {
     if (newShuffle) setTrackList((prev) => shuffle(prev));
     else setTrackList(idGen(tracks));
   };
+
+  useEffect(() => {
+    if (audio.current) audio.current.currentTime = trackTime;
+  }, [trackTime, audio]);
 
   useEffect(() => {
     const intervalId = setInterval(() => setTrackTime(trackTime + 1), 1000);
@@ -101,6 +106,9 @@ function App() {
             onMouseDown={() => setIsMouseDown(true)}
             onMouseUp={() => setIsMouseDown(false)}
           />
+          <audio ref={audio} src={track.audio} controls={false}>
+            <track src={track.song} kind="captions" srcLang="en" label="english_captions" />
+          </audio>
           <span title="Total Time" className="text-sm text-slate-500 w-7">
             {formatTime(track.time)}
           </span>
@@ -115,6 +123,10 @@ function App() {
               isPlaying={isPlaying}
               onClick={() => {
                 if (loop === "single" && track.time === trackTime) setTrackTime(0);
+                if (audio.current) {
+                  if (isPlaying) audio.current.pause();
+                  else audio.current.play();
+                }
                 setIsPlaying(!isPlaying);
               }}
             />
