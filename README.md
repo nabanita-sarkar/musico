@@ -2,6 +2,8 @@
 
 _A simple music player concept with skip forward/backward, shuffle, loop abilities_
 
+<img src="./public/project.png" alt="project">
+
 ## Built with
 
 - React
