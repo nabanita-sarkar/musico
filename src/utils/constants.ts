@@ -10,16 +10,16 @@ export const tracks = [
   },
   {
     song: "Blackhole",
-    artist: "Ava King",
+    artist: "Unknown Brain (ft. Ava King)",
     time: 200,
     album_art: "https://i1.sndcdn.com/artworks-ejQtUPXG7aDyLW6w-Vm3zSA-t500x500.jpg",
-    audio: "/music/Dancing-On-The-Moon.mp3",
+    audio: "/music/Blackhole-Ava-King.mp3",
   },
   {
     song: "Phenomenon",
-    artist: "Dax & VinDon",
+    artist: "Unknown Brain & Hoober (ft. Dax & VinDon)",
     time: 207,
     album_art: "https://i.ytimg.com/vi/VpxZBD4iQY4/maxresdefault.jpg",
-    audio: "/music/Dancing-On-The-Moon.mp3",
+    audio: "/music/Phenomenon.mp3",
   },
 ];
