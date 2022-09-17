@@ -1,28 +1,22 @@
 import { AnimatePresence } from "framer-motion";
-import { Shuffle, SkipBack, SkipForward } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { tracks } from "../utils/constants";
 import { idGen, shuffle, songPicker } from "../utils/functions";
 import { T_ChangeType, T_LoopType } from "../utils/types";
+import { NextButton, PrevButton, ShuffleButton } from "./Buttons";
 
 import LoopButton from "./LoopButton";
 import PlayButton from "./PlayButton";
 import Queue from "./Queue";
-import Slider from "./Slider";
 import SongDetails from "./SongDetails";
-
-const formatTime = (time: number) => {
-  const min = Math.floor(time / 60).toFixed(0);
-  const sec = (time % 60).toFixed(0);
-  return `${min}:${sec.length === 1 ? `0${sec}` : sec}`;
-};
+import TrackTime from "./TrackTime";
 
 function App() {
   const [trackList, setTrackList] = useState(idGen(tracks));
   const [track, setTrack] = useState(trackList[0]);
   const [trackTime, setTrackTime] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(true);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [loop, setLoop] = useState<T_LoopType>("default");
   const [isShuffleOn, setIsShuffleOn] = useState(false);
@@ -30,8 +24,10 @@ function App() {
   const audio = useRef<HTMLAudioElement>(null);
 
   const changeSong = (type: T_ChangeType) => {
-    setTrack((prev) => songPicker(prev, type, trackList));
-    setTrackTime(0);
+    if (audio.current) {
+      setTrack((prev) => songPicker(prev, type, trackList));
+      setTrackTime(0);
+    }
   };
 
   const shuffleSongs = () => {
@@ -41,42 +37,58 @@ function App() {
     else setTrackList(idGen(tracks));
   };
 
-  useEffect(() => {
-    if (audio.current) audio.current.currentTime = trackTime;
-  }, [trackTime, audio]);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => setTrackTime(trackTime + 1), 1000);
-    if (!isPlaying) clearInterval(intervalId);
-
-    return () => clearInterval(intervalId);
-  });
+  const playPause = () => {
+    if (audio.current) {
+      if (audio.current.paused) {
+        audio.current.play();
+        setIsPaused(false);
+      } else {
+        audio.current.pause();
+        setIsPaused(true);
+      }
+    }
+  };
 
   useEffect(() => {
     if (track.time === trackTime) {
       if (loop === "loop") {
-        if (!isMouseDown && isPlaying) {
+        if (!isMouseDown && !isPaused) {
           changeSong("next");
           setTrackTime(0);
         }
       } else if (loop === "default") {
-        if (!isMouseDown && isPlaying) {
+        if (!isMouseDown && !isPaused) {
           changeSong("next");
           setTrackTime(0);
-          // setIsPlaying(true);
         }
-        if (isPlaying && trackList.indexOf(track) === trackList.length - 1) {
-          setIsPlaying(false);
+        if (!isPaused && trackList.indexOf(track) === trackList.length - 1) {
+          setIsPaused(true);
         }
       } else if (loop === "single") {
-        if (!isMouseDown && isPlaying) {
+        if (!isMouseDown && !isPaused) {
           setTrackTime(0);
-          // setIsPlaying(false);
         }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loop, trackTime, isMouseDown, isPlaying]);
+  }, [loop, trackTime, isMouseDown, isPaused]);
+
+  useEffect(() => {
+    if (audio.current && isPaused !== audio.current.paused) {
+      if (isPaused) {
+        audio.current.pause();
+      } else {
+        audio.current.play();
+      }
+    }
+  }, [track.song, isPaused]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => setTrackTime(trackTime + 1), 1000);
+    if (isPaused) clearInterval(intervalId);
+
+    return () => clearInterval(intervalId);
+  }, [trackTime, isPaused]);
 
   return (
     <div
@@ -94,49 +106,27 @@ function App() {
     >
       <div className="flex flex-col gap-4 border border-slate-200 rounded-xl p-6 bg-white/90 w-96 drop-shadow-2xl backdrop-blur-md">
         <SongDetails track={track} isQueueOpen={isQueueOpen} setIsQueueOpen={setIsQueueOpen} />
-        <div className="grid gap-2" style={{ gridTemplateColumns: "28px auto 28px" }}>
-          <span title="Track Time" className="text-sm text-slate-500 w-7">
-            {formatTime(trackTime)}
-          </span>
-          <Slider
-            min={0}
-            max={track.time}
-            value={trackTime}
-            onChange={setTrackTime}
-            onMouseDown={() => setIsMouseDown(true)}
-            onMouseUp={() => setIsMouseDown(false)}
-          />
-          <audio ref={audio} src={track.audio} controls={false}>
-            <track src={track.song} kind="captions" srcLang="en" label="english_captions" />
-          </audio>
-          <span title="Total Time" className="text-sm text-slate-500 w-7">
-            {formatTime(track.time)}
-          </span>
-        </div>
+        <TrackTime
+          audio={audio}
+          setTrackTime={setTrackTime}
+          track={track}
+          trackTime={trackTime}
+          setIsMouseDown={setIsMouseDown}
+        />
         <div className="flex items-center justify-between gap-4">
-          <LoopButton loop={loop} setLoop={setLoop} />
+          <LoopButton loop={loop} onChange={setLoop} />
           <div className="flex gap-4">
-            <button type="button" className="bg-slate-200 rounded-full p-2" onClick={() => changeSong("prev")}>
-              <SkipBack className="text-slate-400 fill-slate-400" />
-            </button>
+            <PrevButton onClick={() => changeSong("prev")} />
             <PlayButton
-              isPlaying={isPlaying}
+              isPaused={isPaused}
               onClick={() => {
                 if (loop === "single" && track.time === trackTime) setTrackTime(0);
-                if (audio.current) {
-                  if (isPlaying) audio.current.pause();
-                  else audio.current.play();
-                }
-                setIsPlaying(!isPlaying);
+                playPause();
               }}
             />
-            <button type="button" className="bg-slate-200 rounded-full p-2" onClick={() => changeSong("next")}>
-              <SkipForward className="text-slate-400 fill-slate-400" />
-            </button>
+            <NextButton onClick={() => changeSong("next")} />
           </div>
-          <button type="button" title="Shuffle" onClick={shuffleSongs}>
-            <Shuffle className={isShuffleOn ? "text-slate-800" : "text-slate-400"} />
-          </button>
+          <ShuffleButton isShuffleOn={isShuffleOn} onClick={shuffleSongs} />
         </div>
       </div>
       <AnimatePresence>

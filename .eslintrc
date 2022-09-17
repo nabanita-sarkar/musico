@@ -26,10 +26,10 @@
   },
   "extends": [
     "eslint:recommended",
-    "airbnb",
+    // "airbnb",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
-    "airbnb/hooks",
+    // "airbnb/hooks",
     "plugin:@typescript-eslint/recommended"
   ],
   "plugins": [],
@@ -63,8 +63,8 @@
     "camelcase": "off",
     "react/jsx-filename-extension": ["error", { "extensions": [".js", ".jsx", ".tsx"] }],
     "max-len": ["off"],
-    "no-multiple-empty-lines": "off",
-    "import/no-relative-packages": "error",
-    "import/prefer-default-export": "warn"
+    "no-multiple-empty-lines": "off"
+    // "import/no-relative-packages": "error"
+    // "import/prefer-default-export": "warn"
   }
 }

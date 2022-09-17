@@ -18,3 +18,9 @@ export const songPicker = (prev: T_Track, type: T_ChangeType, trackList: T_Track
   if (type === "prev" && id === 0) return trackList[trackList.length - 1];
   return trackList.find((_, i) => i === (type === "next" ? id + 1 : id - 1))!;
 };
+
+export const formatTime = (time: number) => {
+  const min = Math.floor(time / 60).toFixed(0);
+  const sec = (time % 60).toFixed(0);
+  return `${min}:${sec.length === 1 ? `0${sec}` : sec}`;
+};

@@ -6,10 +6,10 @@ export default function PlayButton({
   /**
    *  Check if the track is playing currently or not
    * */
-  isPlaying,
+  isPaused,
   onClick,
 }: {
-  isPlaying: boolean;
+  isPaused: boolean;
   onClick: () => void;
 }) {
   return (
@@ -19,7 +19,7 @@ export default function PlayButton({
       className="text-2xl w-10 flex justify-center items-center rounded-full bg-slate-200"
       onClick={() => onClick()}
     >
-      {isPlaying ? <Pause className="fill-slate-400 text-slate-400" /> : <Play />}
+      {!isPaused ? <Pause className="fill-slate-400 text-slate-400" /> : <Play />}
     </motion.button>
   );
 }
