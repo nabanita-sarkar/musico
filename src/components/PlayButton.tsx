@@ -1,5 +1,5 @@
 import { Pause } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import Play from "./Play";
 
 export default function PlayButton({

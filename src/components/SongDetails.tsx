@@ -1,5 +1,5 @@
 import { Heart, List } from "lucide-react";
-import { T_Track } from "../utils/types";
+import type { T_Track } from "../utils/types";
 
 export default function SongDetails({
   track,

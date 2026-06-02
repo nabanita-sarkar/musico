@@ -1,6 +1,5 @@
 import { Repeat, Repeat1 } from "lucide-react";
-import React from "react";
-import { T_LoopType } from "../utils/types";
+import type { T_LoopType } from "../utils/types";
 
 export default function LoopButton({ loop, onChange }: { loop: T_LoopType; onChange: (loopType: T_LoopType) => void }) {
   return (

@@ -1,6 +1,5 @@
-import { Reorder, useDragControls, motion } from "framer-motion";
-import React from "react";
-import { T_TrackList } from "../utils/types";
+import { Reorder, useDragControls, motion } from "motion/react";
+import type { T_TrackList } from "../utils/types";
 import QueueItem from "./QueueItem";
 
 const variants = {

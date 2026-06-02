@@ -1,9 +1,9 @@
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
 import { tracks } from "../utils/constants";
 import { idGen, shuffle, songPicker } from "../utils/functions";
-import { T_ChangeType, T_LoopType } from "../utils/types";
+import type { T_ChangeType, T_LoopType } from "../utils/types";
 import { NextButton, PrevButton, ShuffleButton } from "./Buttons";
 
 import LoopButton from "./LoopButton";

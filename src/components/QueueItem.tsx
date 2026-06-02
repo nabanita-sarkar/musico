@@ -1,7 +1,6 @@
-import { Reorder, useDragControls } from "framer-motion";
+import { Reorder, useDragControls } from "motion/react";
 import { Equal } from "lucide-react";
-import React from "react";
-import { T_Track } from "utils/types";
+import type { T_Track } from "../utils/types";
 
 export default function QueueItem({ item }: { item: T_Track }) {
   const itemDrag = useDragControls();

@@ -1,5 +1,5 @@
 import { tracks } from "./constants";
-import { T_ChangeType, T_Track, T_TrackList } from "./types";
+import type { T_ChangeType, T_Track, T_TrackList } from "./types";
 
 export const idGen = (array: typeof tracks) => array.map((item, id) => ({ ...item, id }));
 

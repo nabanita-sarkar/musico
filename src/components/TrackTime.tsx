@@ -1,9 +1,9 @@
-import React, { RefObject } from "react";
+import React, { type RefObject } from "react";
 import { formatTime } from "../utils/functions";
-import { T_Track } from "../utils/types";
+import type { T_Track } from "../utils/types";
 import Slider from "./Slider";
 
-function AudioPlayer({ audio, track }: { track: T_Track; audio: RefObject<HTMLAudioElement> }) {
+function AudioPlayer({ audio, track }: { track: T_Track; audio: RefObject<HTMLAudioElement | null> }) {
   return (
     <audio ref={audio} src={track.audio} controls={false}>
       <track src={track.song} kind="captions" srcLang="en" label="english_captions" />
@@ -23,7 +23,7 @@ function TrackTime({
   trackTime: number;
   track: T_Track;
   setTrackTime: (val: number) => void;
-  audio: RefObject<HTMLAudioElement>;
+  audio: RefObject<HTMLAudioElement | null>;
   setIsMouseDown: (val: boolean) => void;
 }) {
   return (

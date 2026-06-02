@@ -1,5 +1,4 @@
 import { Shuffle, SkipBack, SkipForward } from "lucide-react";
-import React from "react";
 
 export function ShuffleButton({ isShuffleOn, onClick }: { isShuffleOn: boolean; onClick: () => void }) {
   return (
