@@ -1,15 +1,18 @@
 import { Heart, List } from "lucide-react";
 import type { T_Track } from "../utils/types";
+import { usePlayerStore } from "../store/player";
 
 export default function SongDetails({
-  track,
   isQueueOpen,
   setIsQueueOpen,
 }: {
-  track: T_Track;
   isQueueOpen: boolean;
   setIsQueueOpen: (val: boolean) => void;
 }) {
+  const { state } = usePlayerStore();
+
+  const track = state.playlist[state.currentIndex];
+
   return (
     <div className="flex items-start gap-4">
       <img src={track.album_art} alt="Album Art" className="rounded-lg w-20 h-20" />

@@ -1,14 +1,16 @@
-import { tracks } from "./constants";
 import type { T_ChangeType, T_Track, T_TrackList } from "./types";
 
-export const idGen = (array: typeof tracks) => array.map((item, id) => ({ ...item, id }));
+export const getShuffledArray = (array: number[]) => {
+  const newArray = [...array];
 
-export const shuffle = (array: T_TrackList) => {
-  const newArray = array.slice();
-  for (let i = newArray.length - 1; i > 0; i -= 1) {
+  // Ref: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
+  for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    const temp = newArray[i];
+    newArray[i] = newArray[j];
+    newArray[j] = temp;
   }
+
   return newArray;
 };
 

@@ -1,8 +1,22 @@
-import { Shuffle, SkipBack, SkipForward } from "lucide-react";
+import { Repeat, Repeat1, Shuffle, SkipBack, SkipForward } from "lucide-react";
+import type { T_LoopType } from "../utils/types";
+
+export function LoopButton({ loop, onClick }: { loop: T_LoopType; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      title={loop}
+      onClick={() => onClick()}
+      className={`p-2 rounded-full ${loop === "loop" ? "text-slate-800" : "text-slate-400"}`}
+    >
+      {loop === "single" ? <Repeat1 className="text-slate-800" /> : <Repeat />}
+    </button>
+  );
+}
 
 export function ShuffleButton({ isShuffleOn, onClick }: { isShuffleOn: boolean; onClick: () => void }) {
   return (
-    <button type="button" title="Shuffle" onClick={() => onClick()}>
+    <button type="button" className="p-2 rounded-full" title="Shuffle" onClick={() => onClick()}>
       <Shuffle className={isShuffleOn ? "text-slate-800" : "text-slate-400"} />
     </button>
   );

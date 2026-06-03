@@ -1,6 +1,6 @@
-/* eslint-disable import/prefer-default-export */
 export const tracks = [
   {
+    id: 0,
     song: "Dancing on the moon",
     artist: "Unknown Brain",
     time: 221,
@@ -9,6 +9,7 @@ export const tracks = [
     audio: "/music/Dancing-On-The-Moon.mp3",
   },
   {
+    id: 1,
     song: "Blackhole",
     artist: "Unknown Brain (ft. Ava King)",
     time: 200,
@@ -16,6 +17,7 @@ export const tracks = [
     audio: "/music/Blackhole-Ava-King.mp3",
   },
   {
+    id: 2,
     song: "Phenomenon",
     artist: "Unknown Brain & Hoober (ft. Dax & VinDon)",
     time: 207,
@@ -23,3 +25,5 @@ export const tracks = [
     audio: "/music/Phenomenon.mp3",
   },
 ];
+
+export const NUM_OF_TRACKS = tracks.length;

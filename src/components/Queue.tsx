@@ -1,6 +1,6 @@
 import { Reorder, useDragControls, motion } from "motion/react";
-import type { T_TrackList } from "../utils/types";
 import QueueItem from "./QueueItem";
+import { usePlayerStore } from "../store/player";
 
 const variants = {
   initial: { y: "100%" },
@@ -8,16 +8,10 @@ const variants = {
   exit: { y: "100%" },
 };
 
-export default function Queue({
-  trackList,
-  setTrackList,
-  setIsQueueOpen,
-}: {
-  trackList: T_TrackList;
-  setTrackList: (val: T_TrackList) => void;
-  setIsQueueOpen: (val: boolean) => void;
-}) {
+export default function Queue({ setIsQueueOpen }: { setIsQueueOpen: (val: boolean) => void }) {
   const modalDrag = useDragControls();
+  const { state, dispatch } = usePlayerStore();
+  const trackList = state.playlist.map((_, i) => (state.shuffleList ? state.shuffleList[i] : i));
 
   return (
     <motion.div
@@ -44,10 +38,16 @@ export default function Queue({
           <div className="h-1 w-8 bg-slate-300 rounded-full" />
         </button>
       </div>
-      <Reorder.Group axis="y" values={trackList} onReorder={setTrackList} className="flex flex-col gap-2 overflow-clip">
-        {trackList.map((item) => (
-          <QueueItem item={item} key={item.id} />
-        ))}
+      <Reorder.Group
+        axis="y"
+        values={trackList}
+        onReorder={(newOrder) => dispatch.reorderPlaylist(newOrder)}
+        className="flex flex-col gap-2 overflow-clip"
+      >
+        {trackList.map((index) => {
+          const track = state.playlist[index];
+          return <QueueItem item={track} key={index} index={index} />;
+        })}
       </Reorder.Group>
     </motion.div>
   );
