@@ -1,34 +1,7 @@
-import React, { useState, type RefObject } from "react";
-import { E_PlayerAction, usePlayerStore } from "../store/player";
+import { useState } from "react";
+import { usePlayerStore } from "../store/player";
 import { formatTime } from "../utils/functions";
-import type { T_Track } from "../utils/types";
 import Slider from "./Slider";
-
-function AudioPlayer({ audio, track }: { track: T_Track; audio: RefObject<HTMLAudioElement | null> }) {
-  return (
-    <audio
-      ref={audio}
-      // src={track.audio}
-      controls={false}
-      // loop={state.repeatMode === "single"}
-      onTimeUpdate={() => {
-        // dispatch(E_PlayerAction.UPDATE_TRACK_TIME);
-      }}
-      onEnded={() => {
-        // dispatch(E_PlayerAction.TRACK_FINISEHED);
-      }}
-      onLoad={() => {
-        // if (state.isPlaying) {
-        //   audio.current?.play();
-        // }
-      }}
-    >
-      <track src={track.song} kind="captions" srcLang="en" label="english_captions" />
-    </audio>
-  );
-}
-
-const Audio = React.memo(AudioPlayer);
 
 function TrackTime() {
   const { state, dispatch } = usePlayerStore();
@@ -50,15 +23,8 @@ function TrackTime() {
         onMouseUp={(val) => {
           dispatch.updateTrackTime(val);
           setInnerTime(null);
-          // if (audio.current) {
-          //   audio.current.currentTime = val;
-          //   dispatch(E_PlayerAction.UPDATE_TRACK_TIME);
-          // }
-          // setIsMouseDown(false);
         }}
-        // onMouseDown={() => setIsMouseDown(true)}
       />
-      {/* <Audio audio={audio} track={track} /> */}
       <span title="Total Time" className="text-sm text-slate-500 w-7">
         {formatTime(state.duration)}
       </span>
