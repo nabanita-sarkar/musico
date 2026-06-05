@@ -39,6 +39,8 @@ const initialState: T_PlayerState = {
 
 class PlayerStore {
   private _audio: HTMLAudioElement;
+  private _audioContext: AudioContext | null;
+  private _source: MediaElementAudioSourceNode | null;
   private _snapshot: T_PlayerState;
   private _listeners: Set<() => void>;
 
@@ -75,6 +77,8 @@ class PlayerStore {
     this._snapshot = initialState;
     this._listeners = new Set();
     this.loadTrack(0);
+    this._source = null;
+    this._audioContext = null;
 
     this._audio.addEventListener("loadstart", this._handleLoading);
     this._audio.addEventListener("canplay", this._handleReady);
@@ -106,6 +110,12 @@ class PlayerStore {
       return;
     }
     this._audio.play();
+    if (!this._source) {
+      const { source, audioContext } = visualizeFreq(this._audio);
+      this._source = source;
+      this._audioContext = audioContext;
+    }
+
     this.emit({ isPlaying: true });
   }
   private pause() {
@@ -119,6 +129,7 @@ class PlayerStore {
     const track = this._snapshot.playlist[newIndex].audio;
     this._audio.src = track;
     this._audio.load();
+    getAudioContext(track);
 
     this.emit({ currentIndex: newIndex, status: "loading", trackTime: 0, duration: 0 });
   }
@@ -199,6 +210,15 @@ class PlayerStore {
     if (isAllSame) return;
     this.emit({ shuffleList: [...newOrder] });
   };
+  // public getAudioStream = () => {
+  //   visualizeFreq(frequencyBufferLength, analyser, frequencyData);
+
+  //   return {
+  //     frequencyBufferLength,
+  //     analyser,
+  //     frequencyData,
+  //   };
+  // };
 }
 
 export const playerInstance = new PlayerStore();
@@ -213,9 +233,128 @@ export function usePlayerStore() {
     playPrev: playerInstance.playPrev,
     updateTrackTime: playerInstance.updateTrackTime,
     reorderPlaylist: playerInstance.reorderPlaylist,
+    // getAudioStream: playerInstance.getAudioStream,
   };
   return {
     state,
     dispatch,
   };
+}
+
+function visualizeFreq(audioElement: HTMLAudioElement) {
+  const audioContext = new AudioContext();
+  const analyser = audioContext.createAnalyser();
+  analyser.fftSize = 128;
+
+  const frequencyBufferLength = analyser.frequencyBinCount;
+  const frequencyData = new Uint8Array(frequencyBufferLength);
+  const source = audioContext.createMediaElementSource(audioElement);
+  source.connect(analyser);
+  analyser.connect(audioContext.destination);
+
+  /* Canvas related stuff */
+  const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+  canvas.width = canvas.clientWidth * 5;
+  canvas.height = canvas.clientHeight * 5;
+
+  const canvasContext = canvas.getContext("2d")!;
+  // const channelData = audioBuffer.getChannelData(0);
+
+  // const numberOfChunks = 400;
+  // const chunkSize = Math.ceil(channelData.length / numberOfChunks);
+
+  canvasContext.fillStyle = "#5271FF";
+  // const center = canvas.height / 2;
+  // const barWidth = canvas.width / numberOfChunks;
+  const barWidth = canvas.width / frequencyBufferLength;
+
+  function draw() {
+    requestAnimationFrame(draw);
+    canvasContext?.clearRect(0, 0, canvas.width, canvas.height);
+    analyser.getByteFrequencyData(frequencyData);
+
+    // for (let i = 0; i < numberOfChunks; i++) {
+    for (let i = 0; i < frequencyBufferLength; i++) {
+      // const chunk = channelData.slice(i * chunkSize, (i + 1) * chunkSize);
+      // const min = Math.min(...chunk) * 20;
+      // const max = Math.max(...chunk) * 20;
+
+      // canvasContext?.fillRect(
+      //   i * barWidth,
+      //   center - max,
+      //   barWidth,
+      //   max + Math.abs(min),
+      // );
+      canvasContext.fillStyle = `rgba(107, 102, 255, ${frequencyData[i] / 255})`;
+      canvasContext?.roundRect(
+        i * barWidth,
+        canvas.height - frequencyData[i],
+        barWidth - 2,
+        frequencyData[i],
+        [50, 50, 0, 0]
+      );
+      canvasContext.fill();
+      canvasContext.beginPath();
+    }
+  }
+
+  draw();
+  return { source, audioContext };
+}
+
+function visualizeTime(audioBuffer: AudioBuffer) {
+  const canvas = document.getElementById("canvas_time") as HTMLCanvasElement;
+
+  const dpr = window?.devicePixelRatio || 1;
+
+  const DISPLAY_WIDTH = canvas.clientWidth;
+  const DISPLAY_HEIGHT = canvas.clientHeight;
+
+  canvas.width = DISPLAY_WIDTH * dpr;
+  canvas.height = DISPLAY_HEIGHT * dpr;
+
+  canvas.style.width = `${DISPLAY_WIDTH}px`;
+  canvas.style.height = `${DISPLAY_HEIGHT}px`;
+
+  const canvasContext = canvas.getContext("2d")!;
+  canvasContext.scale(dpr, dpr);
+
+  const channelData = audioBuffer.getChannelData(0);
+
+  const numberOfChunks = 128;
+  const chunkSize = Math.ceil(channelData.length / numberOfChunks);
+
+  canvasContext.fillStyle = "rgba(255, 133, 173, 0.5)";
+  const center = DISPLAY_HEIGHT / 2;
+  const amplitude = center - 10;
+
+  const barWidth = DISPLAY_WIDTH / numberOfChunks;
+
+  for (let i = 0; i < numberOfChunks; i++) {
+    let min = Infinity;
+    let max = -Infinity;
+    for (let j = i * chunkSize; j < Math.min((i + 1) * chunkSize, channelData.length); j++) {
+      min = Math.min(min, channelData[j]);
+      max = Math.max(max, channelData[j]);
+    }
+    min = min * amplitude;
+    max = max * amplitude;
+
+    canvasContext?.roundRect(i * barWidth, center - max, barWidth - 1, max + Math.abs(min), 6);
+  }
+  canvasContext.fill();
+}
+
+async function getAudioContext(src: string) {
+  try {
+    const response = await fetch(src);
+    const blob = await response.blob();
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioContext = new AudioContext({ sinkId: { type: "none" } } as any);
+
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    visualizeTime(audioBuffer);
+  } catch (error) {
+    console.error(error);
+  }
 }
