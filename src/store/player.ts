@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import { tracks } from "../utils/constants";
 import { getShuffledArray } from "../utils/functions";
 import type { T_LoopType, T_Track } from "../utils/types";
+import { EqualiserService, INITIAL_GAINS, type T_Freqency } from "./equaliser";
 
 type T_TrackStatus = "idle" | "loading" | "ready" | "error";
 type T_PlayerState = {
@@ -14,6 +15,7 @@ type T_PlayerState = {
   shuffle: boolean;
   repeatMode: T_LoopType;
   status: T_TrackStatus;
+  gains: Record<T_Freqency, number>;
 };
 export enum E_PlayerAction {
   TOGGLE_PLAY = "TOGGLE_PLAY",
@@ -35,6 +37,7 @@ const initialState: T_PlayerState = {
   shuffle: false,
   repeatMode: "default",
   status: "idle",
+  gains: INITIAL_GAINS,
 };
 
 class PlayerStore {
@@ -43,6 +46,7 @@ class PlayerStore {
   private _source: MediaElementAudioSourceNode | null;
   private _snapshot: T_PlayerState;
   private _listeners: Set<() => void>;
+  private _equaliser: EqualiserService | null;
 
   private _handleLoading = () => {
     this.emit({ status: "loading", trackTime: 0, duration: 0 });
@@ -79,6 +83,7 @@ class PlayerStore {
     this.loadTrack(0);
     this._source = null;
     this._audioContext = null;
+    this._equaliser = null;
 
     this._audio.addEventListener("loadstart", this._handleLoading);
     this._audio.addEventListener("canplay", this._handleReady);
@@ -111,9 +116,10 @@ class PlayerStore {
     }
     this._audio.play();
     if (!this._source) {
-      const { source, audioContext } = visualizeFreq(this._audio);
+      const { source, audioContext, equaliser } = visualizeFreq(this._audio);
       this._source = source;
       this._audioContext = audioContext;
+      this._equaliser = equaliser;
     }
 
     this.emit({ isPlaying: true });
@@ -210,15 +216,11 @@ class PlayerStore {
     if (isAllSame) return;
     this.emit({ shuffleList: [...newOrder] });
   };
-  // public getAudioStream = () => {
-  //   visualizeFreq(frequencyBufferLength, analyser, frequencyData);
-
-  //   return {
-  //     frequencyBufferLength,
-  //     analyser,
-  //     frequencyData,
-  //   };
-  // };
+  public changeFreqGain = (freq: T_Freqency, gain: number) => {
+    this._equaliser?.setGain(freq, gain);
+    const newGains = { ...this._snapshot.gains, [freq]: gain };
+    this.emit({ gains: newGains });
+  };
 }
 
 export const playerInstance = new PlayerStore();
@@ -233,7 +235,7 @@ export function usePlayerStore() {
     playPrev: playerInstance.playPrev,
     updateTrackTime: playerInstance.updateTrackTime,
     reorderPlaylist: playerInstance.reorderPlaylist,
-    // getAudioStream: playerInstance.getAudioStream,
+    changeFreqGain: playerInstance.changeFreqGain,
   };
   return {
     state,
@@ -250,7 +252,8 @@ function visualizeFreq(audioElement: HTMLAudioElement) {
   const frequencyData = new Uint8Array(frequencyBufferLength);
   const source = audioContext.createMediaElementSource(audioElement);
   source.connect(analyser);
-  analyser.connect(audioContext.destination);
+  const equaliser = new EqualiserService(audioContext, analyser);
+  equaliser.maxFilter.connect(audioContext.destination);
 
   /* Canvas related stuff */
   const canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -258,14 +261,8 @@ function visualizeFreq(audioElement: HTMLAudioElement) {
   canvas.height = canvas.clientHeight * 5;
 
   const canvasContext = canvas.getContext("2d")!;
-  // const channelData = audioBuffer.getChannelData(0);
-
-  // const numberOfChunks = 400;
-  // const chunkSize = Math.ceil(channelData.length / numberOfChunks);
 
   canvasContext.fillStyle = "#5271FF";
-  // const center = canvas.height / 2;
-  // const barWidth = canvas.width / numberOfChunks;
   const barWidth = canvas.width / frequencyBufferLength;
 
   function draw() {
@@ -273,18 +270,7 @@ function visualizeFreq(audioElement: HTMLAudioElement) {
     canvasContext?.clearRect(0, 0, canvas.width, canvas.height);
     analyser.getByteFrequencyData(frequencyData);
 
-    // for (let i = 0; i < numberOfChunks; i++) {
     for (let i = 0; i < frequencyBufferLength; i++) {
-      // const chunk = channelData.slice(i * chunkSize, (i + 1) * chunkSize);
-      // const min = Math.min(...chunk) * 20;
-      // const max = Math.max(...chunk) * 20;
-
-      // canvasContext?.fillRect(
-      //   i * barWidth,
-      //   center - max,
-      //   barWidth,
-      //   max + Math.abs(min),
-      // );
       canvasContext.fillStyle = `rgba(107, 102, 255, ${frequencyData[i] / 255})`;
       canvasContext?.roundRect(
         i * barWidth,
@@ -299,7 +285,7 @@ function visualizeFreq(audioElement: HTMLAudioElement) {
   }
 
   draw();
-  return { source, audioContext };
+  return { source, audioContext, equaliser };
 }
 
 function visualizeTime(audioBuffer: AudioBuffer) {

@@ -1,11 +1,12 @@
 import { AnimatePresence } from "motion/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { usePlayerStore } from "../store/player";
 import { LoopButton, NextButton, PrevButton, ShuffleButton } from "./Buttons";
 import PlayButton from "./PlayButton";
 import Queue from "./Queue";
 import SongDetails from "./SongDetails";
 import TrackTime from "./TrackTime";
+import Equaliser from "./Equaliser";
 
 // const DISPLAY_WIDTH = 334;
 const DISPLAY_HEIGHT = 70;
@@ -55,6 +56,7 @@ function App() {
             }}
           />
         </div>
+        <Equaliser />
         <TrackTime />
         <ButtonStack />
       </div>
