@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@radix-ui/react-slider": "1.2.1",
+    "fft.js": "4.0.4",
     "lucide-react": "1.16.0",
     "motion": "12.40.0",
+    "onnxruntime-web": "1.26.0",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },

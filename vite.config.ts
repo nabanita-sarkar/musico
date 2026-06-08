@@ -13,12 +13,13 @@ export default defineConfig({
   //   outDir: "build",
   // },
   // server: {
-  //   origin: "http://localhost:3000",
-  //   // host: "117.241.237.162",
-  //   host: true,
-  //   fs: {
-  //     strict: true,
+  //   headers: {
+  //     "Cross-Origin-Opener-Policy": "same-origin",
+  //     "Cross-Origin-Embedder-Policy": "require-corp",
   //   },
-  //   open: true,
   // },
+  optimizeDeps: {
+    exclude: ["onnxruntime-web"],
+  },
+  assetsInclude: ["**/*.wasm"],
 });

@@ -43,6 +43,7 @@ const initialState: T_PlayerState = {
 class PlayerStore {
   private _audio: HTMLAudioElement;
   private _audioContext: AudioContext | null;
+  private _audioBuffer: AudioBuffer | null;
   private _source: MediaElementAudioSourceNode | null;
   private _snapshot: T_PlayerState;
   private _listeners: Set<() => void>;
@@ -83,6 +84,7 @@ class PlayerStore {
     this.loadTrack(0);
     this._source = null;
     this._audioContext = null;
+    this._audioBuffer = null;
     this._equaliser = null;
 
     this._audio.addEventListener("loadstart", this._handleLoading);
@@ -131,13 +133,14 @@ class PlayerStore {
     this._audio.pause();
     this.emit({ isPlaying: false });
   }
-  private loadTrack(newIndex: number) {
+  private async loadTrack(newIndex: number) {
     const track = this._snapshot.playlist[newIndex].audio;
     this._audio.src = track;
     this._audio.load();
-    getAudioContext(track);
-
     this.emit({ currentIndex: newIndex, status: "loading", trackTime: 0, duration: 0 });
+    const { audioContext, audioBuffer } = await getAudioContext(track);
+    this._audioContext = audioContext;
+    this._audioBuffer = audioBuffer;
   }
   /* For React useSyncExternalStore orchestration  */
   public getSnapshot = () => {
@@ -221,6 +224,9 @@ class PlayerStore {
     const newGains = { ...this._snapshot.gains, [freq]: gain };
     this.emit({ gains: newGains });
   };
+  public audioBuffer = () => {
+    return this._audioBuffer;
+  };
 }
 
 export const playerInstance = new PlayerStore();
@@ -236,6 +242,7 @@ export function usePlayerStore() {
     updateTrackTime: playerInstance.updateTrackTime,
     reorderPlaylist: playerInstance.reorderPlaylist,
     changeFreqGain: playerInstance.changeFreqGain,
+    audioBuffer: playerInstance.audioBuffer,
   };
   return {
     state,
@@ -336,11 +343,13 @@ async function getAudioContext(src: string) {
     const response = await fetch(src);
     const blob = await response.blob();
     const arrayBuffer = await blob.arrayBuffer();
-    const audioContext = new AudioContext({ sinkId: { type: "none" } } as any);
+    const audioContext = new AudioContext({ sinkId: { type: "none" }, sampleRate: 44100 } as any);
 
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
     visualizeTime(audioBuffer);
+    return { audioContext, audioBuffer };
   } catch (error) {
     console.error(error);
+    return { audioContext: null, audioBuffer: null };
   }
 }

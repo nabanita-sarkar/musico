@@ -7,14 +7,17 @@ import Queue from "./Queue";
 import SongDetails from "./SongDetails";
 import TrackTime from "./TrackTime";
 import Equaliser from "./Equaliser";
+import { useModel } from "../hooks/useModel";
 
 // const DISPLAY_WIDTH = 334;
 const DISPLAY_HEIGHT = 70;
 
 function App() {
   const [isQueueOpen, setIsQueueOpen] = useState(false);
-  const { state } = usePlayerStore();
+  const { state, dispatch } = usePlayerStore();
   const isTrackNotLoaded = isNaN(state.trackTime / state.duration);
+
+  const { run } = useModel();
 
   return (
     <div
@@ -59,7 +62,19 @@ function App() {
         <Equaliser />
         <TrackTime />
         <ButtonStack />
+        <button
+          onClick={() => {
+            const audioBuffer = dispatch.audioBuffer();
+            if (!audioBuffer) {
+              return alert("audio not ready");
+            }
+            run(false, false, audioBuffer);
+          }}
+        >
+          test gpu run
+        </button>
       </div>
+      <div id="stems" />
       <AnimatePresence>{isQueueOpen && <Queue setIsQueueOpen={setIsQueueOpen} />}</AnimatePresence>
     </div>
   );
