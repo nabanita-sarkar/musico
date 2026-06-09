@@ -1,9 +1,11 @@
 import { Pause, Play } from "lucide-react";
 import { motion } from "motion/react";
-import { usePlayerStore } from "../store/player";
+import { usePlayerDispatch, usePlayerSelector } from "../store/player";
 
 export default function PlayButton() {
-  const { state, dispatch } = usePlayerStore();
+  const status = usePlayerSelector((state) => state.status);
+  const isPlaying = usePlayerSelector((state) => state.isPlaying);
+  const dispatch = usePlayerDispatch();
 
   return (
     <motion.button
@@ -13,9 +15,9 @@ export default function PlayButton() {
       onClick={() => {
         dispatch.togglePlay();
       }}
-      disabled={state.status !== "ready"}
+      disabled={status !== "ready"}
     >
-      {state.isPlaying ? <Pause className="fill-current" /> : <Play className="fill-current" />}
+      {isPlaying ? <Pause className="fill-current" /> : <Play className="fill-current" />}
     </motion.button>
   );
 }

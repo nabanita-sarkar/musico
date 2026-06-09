@@ -17,15 +17,6 @@ type T_PlayerState = {
   status: T_TrackStatus;
   gains: Record<T_Freqency, number>;
 };
-export enum E_PlayerAction {
-  TOGGLE_PLAY = "TOGGLE_PLAY",
-  NEXT = "NEXT",
-  PREV = "PREV",
-  TRACK_FINISEHED = "TRACK_FINISEHED",
-  TOGGLE_SHUFFLE = "TOGGLE_SHUFFLE",
-  TOGGLE_REPEAT = "TOGGLE_REPEAT",
-  UPDATE_TRACK_TIME = "UPDATE_TRACK_TIME",
-}
 
 const initialState: T_PlayerState = {
   playlist: tracks,
@@ -225,22 +216,39 @@ class PlayerStore {
 
 export const playerInstance = new PlayerStore();
 
-export function usePlayerStore() {
-  const state = useSyncExternalStore(playerInstance.subscribe, playerInstance.getSnapshot);
-  const dispatch = {
-    togglePlay: playerInstance.togglePlay,
-    toggleShuffle: playerInstance.toggleShuffle,
-    cycleRepeat: playerInstance.cycleRepeat,
-    playNext: playerInstance.playNext,
-    playPrev: playerInstance.playPrev,
-    updateTrackTime: playerInstance.updateTrackTime,
-    reorderPlaylist: playerInstance.reorderPlaylist,
-    changeFreqGain: playerInstance.changeFreqGain,
-  };
+export function usePlayerStore<T>(selector: (state: T_PlayerState) => T) {
+  const state = useSyncExternalStore(
+    playerInstance.subscribe,
+    () => selector(playerInstance.getSnapshot())
+    // () => {
+    //   const result = selector(playerInstance.getSnapshot());
+    //   console.log("selector ran:", selector.toString().slice(0, 50), "→", result);
+    //   return result;
+    // }
+  );
+
   return {
     state,
-    dispatch,
   };
+}
+
+export function usePlayerSelector<T>(selector: (state: T_PlayerState) => T) {
+  const { state } = usePlayerStore(selector);
+  return state;
+}
+
+const dispatch = {
+  togglePlay: playerInstance.togglePlay,
+  toggleShuffle: playerInstance.toggleShuffle,
+  cycleRepeat: playerInstance.cycleRepeat,
+  playNext: playerInstance.playNext,
+  playPrev: playerInstance.playPrev,
+  updateTrackTime: playerInstance.updateTrackTime,
+  reorderPlaylist: playerInstance.reorderPlaylist,
+  changeFreqGain: playerInstance.changeFreqGain,
+};
+export function usePlayerDispatch() {
+  return dispatch;
 }
 
 function visualizeFreq(audioElement: HTMLAudioElement) {

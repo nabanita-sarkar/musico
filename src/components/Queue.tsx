@@ -1,6 +1,6 @@
-import { Reorder, useDragControls, motion } from "motion/react";
+import { motion, Reorder, useDragControls } from "motion/react";
+import { usePlayerDispatch, usePlayerSelector } from "../store/player";
 import QueueItem from "./QueueItem";
-import { usePlayerStore } from "../store/player";
 
 const variants = {
   initial: { y: "100%" },
@@ -10,8 +10,10 @@ const variants = {
 
 export default function Queue({ setIsQueueOpen }: { setIsQueueOpen: (val: boolean) => void }) {
   const modalDrag = useDragControls();
-  const { state, dispatch } = usePlayerStore();
-  const trackList = state.playlist.map((_, i) => (state.shuffleList ? state.shuffleList[i] : i));
+  const playlist = usePlayerSelector((state) => state.playlist);
+  const shuffleList = usePlayerSelector((state) => state.shuffleList);
+  const dispatch = usePlayerDispatch();
+  const trackList = playlist.map((_, i) => (shuffleList ? shuffleList[i] : i));
 
   return (
     <motion.div
@@ -45,7 +47,7 @@ export default function Queue({ setIsQueueOpen }: { setIsQueueOpen: (val: boolea
         className="flex flex-col gap-2 overflow-clip"
       >
         {trackList.map((index) => {
-          const track = state.playlist[index];
+          const track = playlist[index];
           return <QueueItem item={track} key={index} index={index} />;
         })}
       </Reorder.Group>

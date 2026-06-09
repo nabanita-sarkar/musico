@@ -1,7 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./components/App";
+import App from "./App";
 import { playerInstance } from "./store/player";
 
 if (import.meta.hot) {

@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { usePlayerStore } from "../store/player";
+import { usePlayerDispatch, usePlayerSelector } from "../store/player";
 import { formatTime } from "../utils/functions";
 import Slider from "./Slider";
 
 function TrackTime() {
-  const { state, dispatch } = usePlayerStore();
+  const trackTime = usePlayerSelector((state) => state.trackTime);
+  const duration = usePlayerSelector((state) => state.duration);
+  const dispatch = usePlayerDispatch();
+
   const [innerTime, setInnerTime] = useState<null | number>(null);
-  const innerTrackTime = innerTime ?? state.trackTime;
+  const innerTrackTime = innerTime ?? trackTime;
 
   return (
     <div className="grid gap-2" style={{ gridTemplateColumns: "28px auto 28px" }}>
@@ -15,7 +18,7 @@ function TrackTime() {
       </span>
       <Slider
         min={0}
-        max={state.duration}
+        max={duration}
         value={innerTrackTime}
         onChange={(val) => {
           setInnerTime(val);
@@ -26,7 +29,7 @@ function TrackTime() {
         }}
       />
       <span title="Total Time" className="text-sm text-slate-500 w-7">
-        {formatTime(state.duration)}
+        {formatTime(duration)}
       </span>
     </div>
   );

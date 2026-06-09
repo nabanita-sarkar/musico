@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FREQUENCIES, type T_Freqency } from "../store/equaliser";
-import { usePlayerStore } from "../store/player";
+import { usePlayerDispatch, usePlayerSelector } from "../store/player";
 import Slider from "./Slider";
 
 export default function Equaliser() {
@@ -14,9 +14,20 @@ export default function Equaliser() {
 }
 
 function FreqSlider({ freq }: { freq: T_Freqency }) {
-  const { state, dispatch } = usePlayerStore();
+  const storeGain = usePlayerSelector((state) => state.gains[freq]);
+  const dispatch = usePlayerDispatch();
+
   const [innerGain, setInnerGain] = useState<null | number>(null);
-  const gain = innerGain ?? state.gains[freq];
+  const gain = innerGain ?? storeGain;
+
+  function handleChange(val: number) {
+    setInnerGain(val);
+  }
+
+  function handleMouseUp(val: number) {
+    dispatch.changeFreqGain(freq, val);
+    setInnerGain(null);
+  }
 
   return (
     <div className="inline-flex flex-col items-center gap-2">
@@ -26,13 +37,8 @@ function FreqSlider({ freq }: { freq: T_Freqency }) {
         max={10}
         value={gain}
         orientation="vertical"
-        onChange={(val) => {
-          setInnerGain(val);
-        }}
-        onMouseUp={(val) => {
-          dispatch.changeFreqGain(freq, val);
-          setInnerGain(null);
-        }}
+        onChange={handleChange}
+        onMouseUp={handleMouseUp}
       />
       <span className="text-sm text-slate-500 w-7 text-center">
         {freq > 999 ? `${Math.floor(freq / 1000)}k` : freq}
