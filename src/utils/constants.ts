@@ -1,3 +1,5 @@
+import type { FilterDefinition } from "./types";
+
 export const tracks = [
   {
     id: 0,
@@ -27,3 +29,12 @@ export const tracks = [
 ];
 
 export const NUM_OF_TRACKS = tracks.length;
+
+export const FILTER_COLLECTION: FilterDefinition[] = [
+  { id: "lowpass", label: "Low Pass", defaultParams: { frequency: 1000, q: 1 } },
+  { id: "highpass", label: "High Pass", defaultParams: { frequency: 500, q: 1 } },
+  { id: "reverb", label: "Reverb", defaultParams: { decay: 2, wet: 0.5 } },
+  { id: "delay", label: "Delay", defaultParams: { time: 0.3, feedback: 0.4 } },
+];
+
+export const PIPELINE_DROPPABLE_ID = "pipeline";

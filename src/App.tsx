@@ -7,12 +7,19 @@ import Queue from "./components/Queue";
 import SongDetails from "./components/SongDetails";
 import TrackTime from "./components/TrackTime";
 import { usePlayerDispatch, usePlayerSelector } from "./store/player";
+import { FilterPipeline } from "./components/FilterPipeline";
+import Card from "./components/Card";
 
 // const DISPLAY_WIDTH = 334;
 const DISPLAY_HEIGHT = 70;
 
 function App() {
-  return <Main />;
+  return (
+    <>
+      <Main />
+      {/* <FilterPipeline /> */}
+    </>
+  );
 }
 
 function Main() {
@@ -32,14 +39,14 @@ function Main() {
     radial-gradient(at 0% 0%, hsla(343,100%,76%,1) 0px, transparent 50%)`,
       }}
     >
-      <div className="flex flex-col gap-4 border border-slate-200 rounded-xl p-6 bg-white/90 w-96 drop-shadow-2xl backdrop-blur-md">
+      <Card>
         <SongDetails isQueueOpen={isQueueOpen} setIsQueueOpen={setIsQueueOpen} />
         <canvas id="canvas" className="h-[70px] w-[334px] bg-slate-200 rounded-lg shadow-inner shadow-slate-800/20" />
         <TimeDomain />
         <Equaliser />
         <TrackTime />
         <ButtonStack />
-      </div>
+      </Card>
       <AnimatePresence>{isQueueOpen && <Queue setIsQueueOpen={setIsQueueOpen} />}</AnimatePresence>
     </div>
   );
