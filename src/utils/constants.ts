@@ -38,3 +38,6 @@ export const FILTER_COLLECTION: FilterDefinition[] = [
 ];
 
 export const PIPELINE_DROPPABLE_ID = "pipeline";
+
+export const DISPLAY_WIDTH = 334;
+export const DISPLAY_HEIGHT = 70;

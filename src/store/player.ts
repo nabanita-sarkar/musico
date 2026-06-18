@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { createFrequencySpectrum } from "../components/FreqVis";
 import { tracks } from "../utils/constants";
 import { getShuffledArray } from "../utils/functions";
 import type { T_LoopType, T_Track } from "../utils/types";
@@ -38,6 +39,8 @@ class PlayerStore {
   private _snapshot: T_PlayerState;
   private _listeners: Set<() => void>;
   private _equaliser: EqualiserService | null;
+  private _freqViz: ReturnType<typeof createFrequencySpectrum> | null;
+  private _originalAnalyser: AnalyserNode | null;
 
   private _handleLoading = () => {
     this.emit({ status: "loading", trackTime: 0, duration: 0 });
@@ -75,6 +78,8 @@ class PlayerStore {
     this._source = null;
     this._audioContext = null;
     this._equaliser = null;
+    this._freqViz = null;
+    this._originalAnalyser = null;
 
     this._audio.addEventListener("loadstart", this._handleLoading);
     this._audio.addEventListener("canplay", this._handleReady);
@@ -107,10 +112,23 @@ class PlayerStore {
     }
     this._audio.play();
     if (!this._source) {
-      const { source, audioContext, equaliser } = visualizeFreq(this._audio);
+      const { source, audioContext, equaliser, frequencyViz, originalAnalyser } = visualizeFreq(this._audio);
       this._source = source;
       this._audioContext = audioContext;
       this._equaliser = equaliser;
+      this._originalAnalyser = originalAnalyser;
+      this._freqViz = frequencyViz;
+
+      // frequencyViz.start();
+    } else if (this._originalAnalyser) {
+      const frequencyViz = createFrequencySpectrum({
+        container: document.getElementById("freq_viz")!,
+        analyser: this._originalAnalyser,
+      });
+      this._freqViz = frequencyViz;
+    }
+    if (this._freqViz) {
+      this._freqViz.start();
     }
 
     this.emit({ isPlaying: true });
@@ -120,6 +138,9 @@ class PlayerStore {
       return;
     }
     this._audio.pause();
+    if (this._freqViz !== null) {
+      this._freqViz.stop();
+    }
     this.emit({ isPlaying: false });
   }
   private loadTrack(newIndex: number) {
@@ -253,47 +274,22 @@ export function usePlayerDispatch() {
 
 function visualizeFreq(audioElement: HTMLAudioElement) {
   const audioContext = new AudioContext();
-  const analyser = audioContext.createAnalyser();
-  analyser.fftSize = 128;
+  const originalAnalyser = new AnalyserNode(audioContext, { fftSize: 2048 });
 
-  const frequencyBufferLength = analyser.frequencyBinCount;
-  const frequencyData = new Uint8Array(frequencyBufferLength);
   const source = audioContext.createMediaElementSource(audioElement);
-  source.connect(analyser);
-  const equaliser = new EqualiserService(audioContext, analyser);
-  equaliser.maxFilter.connect(audioContext.destination);
+  source.connect(originalAnalyser);
 
-  /* Canvas related stuff */
-  const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-  canvas.width = canvas.clientWidth * 5;
-  canvas.height = canvas.clientHeight * 5;
+  const equaliser = new EqualiserService(audioContext, source);
+  const finalAnalyser = new AnalyserNode(audioContext, { fftSize: 2048 });
+  equaliser.maxFilter.connect(finalAnalyser);
+  finalAnalyser.connect(audioContext.destination);
 
-  const canvasContext = canvas.getContext("2d")!;
+  const frequencyViz = createFrequencySpectrum({
+    container: document.getElementById("freq_viz")!,
+    analyser: originalAnalyser,
+  });
 
-  canvasContext.fillStyle = "#5271FF";
-  const barWidth = canvas.width / frequencyBufferLength;
-
-  function draw() {
-    requestAnimationFrame(draw);
-    canvasContext?.clearRect(0, 0, canvas.width, canvas.height);
-    analyser.getByteFrequencyData(frequencyData);
-
-    for (let i = 0; i < frequencyBufferLength; i++) {
-      canvasContext.fillStyle = `rgba(107, 102, 255, ${frequencyData[i] / 255})`;
-      canvasContext?.roundRect(
-        i * barWidth,
-        canvas.height - frequencyData[i],
-        barWidth - 2,
-        frequencyData[i],
-        [50, 50, 0, 0]
-      );
-      canvasContext.fill();
-      canvasContext.beginPath();
-    }
-  }
-
-  draw();
-  return { source, audioContext, equaliser };
+  return { source, audioContext, equaliser, frequencyViz, originalAnalyser };
 }
 
 function visualizeTime(audioBuffer: AudioBuffer) {

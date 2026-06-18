@@ -9,9 +9,8 @@ import TrackTime from "./components/TrackTime";
 import { usePlayerDispatch, usePlayerSelector } from "./store/player";
 import { FilterPipeline } from "./components/FilterPipeline";
 import Card from "./components/Card";
-
-// const DISPLAY_WIDTH = 334;
-const DISPLAY_HEIGHT = 70;
+import { DISPLAY_HEIGHT } from "./utils/constants";
+import FreqVis from "./components/FreqVis";
 
 function App() {
   return (
@@ -27,7 +26,7 @@ function Main() {
 
   return (
     <div
-      className="w-full h-screen flex items-center justify-center bg-slate-50"
+      className="w-full h-screen flex flex-wrap gap-6 items-center justify-center bg-slate-50"
       style={{
         fontFamily: "sans-serif",
         backgroundImage: `radial-gradient(at 40% 20%, hsla(28,100%,74%,1) 0px, transparent 50%),
@@ -40,8 +39,10 @@ function Main() {
       }}
     >
       <Card>
+        <FreqVis />
+      </Card>
+      <Card className="w-96">
         <SongDetails isQueueOpen={isQueueOpen} setIsQueueOpen={setIsQueueOpen} />
-        <canvas id="canvas" className="h-[70px] w-[334px] bg-slate-200 rounded-lg shadow-inner shadow-slate-800/20" />
         <TimeDomain />
         <Equaliser />
         <TrackTime />
